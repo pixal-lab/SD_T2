@@ -60,9 +60,6 @@ def recontar():
         # enviar por correo
     else:
         print("No hay maestros registrados")
-    
-
-
     pass
 
 def main():
@@ -70,8 +67,8 @@ def main():
     while tiempo < 120:
         print(f"Tiempo: {tiempo}")
         leer_reposiciones()
+        aceptar_inscripciones()
         leer_ventas()
-        # aceptar_inscripciones()
 
         if tiempo % 60:
             recontar()
@@ -83,5 +80,4 @@ def main():
 
 
 
-# main()
-recontar()
+main()
