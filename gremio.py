@@ -33,12 +33,35 @@ def leer_ventas():
     
     pass
 
-def recuento_ventas(id):
-    # extre las ventas de la base de datos
-
+def recuento_ventas_i(id):
+    cant_ventas = 0
+    ganancias = 0
     # sumar las ventas
+    ventas = BDD.get_ventas()
 
-    # enviar por correo
+    if ventas:
+        for venta in ventas:
+            if venta[1] == id:
+                cant_ventas += 1
+                ganancias += int(venta[2])
+        return [cant_ventas, ganancias]
+
+
+def recontar():
+    data = []
+    masters = BDD.get_masters()
+    if masters:
+        for master in masters:
+            data.append(master + [recuento_ventas_i(master[0])])
+
+
+        for d in data:
+            print(f"Enviando correo a: {d[1]}, con correo {d[2]} y ventas y ganancias {d[4]}")
+        # enviar por correo
+    else:
+        print("No hay maestros registrados")
+    
+
 
     pass
 
@@ -48,10 +71,10 @@ def main():
         print(f"Tiempo: {tiempo}")
         leer_reposiciones()
         leer_ventas()
-        aceptar_inscripciones()
+        # aceptar_inscripciones()
 
         if tiempo % 60:
-            recuento_ventas(9)
+            recontar()
         time.sleep(1)
         tiempo += 1
     
@@ -60,4 +83,5 @@ def main():
 
 
 
-main()
+# main()
+recontar()

@@ -70,6 +70,24 @@ def add_index(bdd):
     except FileNotFoundError:
         return False
     
+
+def get_masters():
+    try:
+        with open("masters.csv", 'r+', newline='') as archivo_csv:
+            lector_csv = csv.reader(archivo_csv)
+            return(list(lector_csv)[1:])
+    except FileNotFoundError:
+        return False
+def get_ventas():
+    try:
+        with open("ventas.csv", 'r+', newline='') as archivo_csv:
+            lector_csv = csv.reader(archivo_csv)
+            return(list(lector_csv)[1:])
+    except FileNotFoundError:
+        return False
+
 def get_id(BD_master):
     row = consultar_registro("gestor.csv", "nombre_bdd", BD_master)
     return row['last_id']
+
+get_masters()
