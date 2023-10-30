@@ -89,5 +89,3 @@ def get_ventas():
 def get_id(BD_master):
     row = consultar_registro("gestor.csv", "nombre_bdd", BD_master)
     return row['last_id']
-
-get_masters()
