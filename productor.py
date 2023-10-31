@@ -21,50 +21,49 @@ def generar_id():
 class Productor:
     def __init__(self, frecuencia_ventas, max_stock, nombre, correo, premium):
         # Constructor de la clase Productor
-        self.frecuencia_ventas = int  # Frecuencia de ventas
+        self.frecuencia_ventas = frecuencia_ventas  # Frecuencia de ventas
         self.stock = 10  # Stock inicial
         self.max_stock = max_stock  # Stock máximo
-        self.premium = False  # Bandera para gratis o pagado (no se utiliza en este ejemplo)
-        self.nombre = str
-        self.correo = str
+        self.premium = premium  # Bandera para gratis o pagado (no se utiliza en este ejemplo)
+        self.nombre = nombre
+        self.correo = correo
 
-    def solicitar_inscripcion(self, nombre, correo, premium):
+    def solicitar_inscripcion(self):
         topic = topic_inscripcion
         mensaje = {
-            "nombre": nombre,
-            "correo": correo,
-            "premium": True
+            "nombre": self.nombre,
+            "correo": self.correo,
+            "premium": self.premium
         }
         json_mensaje = dumps(mensaje).encode('utf-8')
         productor.send(topic, json_mensaje)
-        time.sleep(3)
 
-    def vender(self, correo, valor, stock):
-        topic = topic_ventas
-        mensaje = {
-            "correo": correo,
-            "valor": 30000
-        }
-        json_mensaje = dumps(mensaje).encode('utf-8')
-        productor.send(topic, json_mensaje)
-        time.sleep(3)
+    def vender(self, valor):
 
         # Método para simular una venta
         if self.stock > 0:
+            topic = topic_ventas
+            mensaje = {
+                "correo": self.correo,
+                "valor": 30000
+            }
+            json_mensaje = dumps(mensaje).encode('utf-8')
+            productor.send(topic, json_mensaje)
             self.stock -= 1
             print("Venta realizada. Stock restante:", self.stock)
         else:
             print("No hay suficiente stock para vender.")
+            self.solicitar_reposicion()
 
 
-    def solicitar_reposicion(self, correo):
+    def solicitar_reposicion(self):
         topic = topic_reposicion 
         mensaje = {
-            "correo": correo,
+            "correo": self.correo,
         }
         json_mensaje = dumps(mensaje).encode('utf-8')
         productor.send(topic, json_mensaje)
-        time.sleep(3)
+
         # Método que simula el proceso de solicitud de reposición de stock
         print("Solicitando reposición...")
         self.stock = self.max_stock  # Reponer el stock al máximo

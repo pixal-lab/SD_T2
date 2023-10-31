@@ -8,13 +8,13 @@ def aceptar_inscripciones():
     inscripcion = []
     
     # insertar en base de datos
-    nuevo_registro = {'nombre': 'Juan', 'correo':'abc@mail.com', 'tipo': 'premium'}
+    nuevo_registro = {'nombre': 'Juan', 'correo':'abc@mail.com', 'premium': True}
     BDD.agregar_registro("masters.csv", master_header, nuevo_registro)
 
     # consumir del topic gratuito
 
     # insertar en base de datos
-    nuevo_registro = {'nombre': 'Juan2', 'correo':'abc2@mail.com', 'tipo': 'gratis'}
+    nuevo_registro = {'nombre': 'Juan2', 'correo':'abc2@mail.com', 'premium': False}
     BDD.agregar_registro("masters.csv", master_header, nuevo_registro)
 
     pass
