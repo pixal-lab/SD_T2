@@ -1,8 +1,5 @@
 from kafka import KafkaProducer
 from json import dumps
-import threading
-import argparse
-import time
 import random
 import string
 
@@ -11,9 +8,6 @@ topic_inscripcion = 'inscripcion'
 topic_ventas = 'ventas'
 topic_reposicion = 'reposicion'
 
-
-def generar_id():
-    return ''.join(random.choices(string.ascii_lowercase + string.digits, k=random.randint(1, 20)))
 
 # Definición de la clase Productor
 class Productor:
