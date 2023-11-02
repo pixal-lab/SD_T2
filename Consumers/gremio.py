@@ -45,8 +45,8 @@ def aceptar_inscripciones():
         msgs.append(insc_msgs.pop(0))
     inscripcion_premium = []
     inscripcion = []
-    print(insc_msgs)
-
+    
+    print(f"Leyendo inscripciones: {msgs}")
     for msg in msgs:
         # Utilizamos el método get() para evitar KeyError en caso de que la clave no exista en el mensaje
         nombre = msg["nombre"]
@@ -76,11 +76,11 @@ def aceptar_inscripciones():
 
 
 def leer_reposiciones():
-    print(repo_msgs)
     msgs = []
     l = len(repo_msgs)
     for i in range(l):
         msgs.append(repo_msgs.pop(0))
+    print(f"Leyendo reposiciones: {msgs}")
 
     for msg in msgs:
         correo = msg["correo"]
@@ -96,6 +96,7 @@ def leer_ventas():
     l = len(vent_msgs)
     for i in range(l):
         msgs.append(dict(vent_msgs.pop(0)))
+    print(f"Leyendo ventas: {msgs}")
     for msg in msgs:
         # Utilizamos el método get() para evitar KeyError en caso de que la clave no exista en el mensaje
         correo = msg["correo"]
@@ -135,16 +136,12 @@ def recontar():
     pass
 
 def run():
-    tiempo = 0
+    tiempo = 1
     while tiempo < 120:
         print(f"Tiempo: {tiempo}")
-        print("a")
         aceptar_inscripciones()
-        print("b")
         leer_reposiciones()
-        print("c")
         leer_ventas()
-        print("d")
 
         if tiempo % 60 == 0:
             recontar()
