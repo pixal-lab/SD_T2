@@ -32,7 +32,7 @@ def agregar_registro(BD_master, encabezados, nuevo_registro):
             new_reg = {'id': get_id(BD_master), **nuevo_registro}
             escritor_csv.writerow(new_reg)
         add_index(BD_master)
-    print(f'Registro agregado con éxito: {nuevo_registro}')
+        print(f'Registro agregado con éxito: {nuevo_registro}')
         
 
 # Función para consultar todos los registros en la base de datos

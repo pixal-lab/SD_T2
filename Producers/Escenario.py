@@ -10,13 +10,14 @@ master3 = pd.Productor(frecuencia_ventas=4, max_stock=10, nombre="Laura", correo
 # y finalmente llega una inscripción pagado que vende 1 producto cada 3 segundos y envía el comprobante.
 master4 = pd.Productor(frecuencia_ventas=3, max_stock=10, nombre="Carlos", correo="d", premium=True)
 
-for i in range(2000):
+for i in range(200):
     print(f"tiempo:{i}")
     master1.run(i)
-    master2.run(i)
-    master3.run(i)
-    master4.run(i)
-    # time.sleep(1)
+    if i >= 10:
+        master2.run(i-10)
+        master3.run(i-10)
+        master4.run(i-10)
+    time.sleep(1)
     
 master1.close()
 master2.close()

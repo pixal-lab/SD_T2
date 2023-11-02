@@ -45,7 +45,7 @@ class Productor:
             topic = topic_ventas
             mensaje = {
                 "correo": self.correo,
-                "valor": str(30000)
+                "valor": str(1000)
             }
             json_mensaje = dumps(mensaje).encode('utf-8')
             res = self.prod.send(topic, json_mensaje, timestamp_ms=604800000)
