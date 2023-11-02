@@ -1,42 +1,57 @@
 import time, BDD
-from kafka import KafkaConsumer
+import threading
+from kafka import KafkaConsumer, TopicPartition
+import asyncio
 import json
 
 servidores_bootstrap = 'kafka:9092'
+
 topic_inscripcion = 'inscripcion'
 topic_ventas = 'ventas'
 topic_reposicion = 'reposicion'
-
-insc = KafkaConsumer(
-    topic_inscripcion,
-    bootstrap_servers=[servidores_bootstrap],
-    value_deserializer=lambda x: json.loads(x.decode('utf-8'))  # Se utiliza json.loads para deserializar el mensaje JSON
-)
-vent = KafkaConsumer(
-    topic_ventas,
-    bootstrap_servers=[servidores_bootstrap],
-    value_deserializer=lambda x: json.loads(x.decode('utf-8'))  # Se utiliza json.loads para deserializar el mensaje JSON
-)
-repo = KafkaConsumer(
-    topic_reposicion,
-    bootstrap_servers=[servidores_bootstrap],
-    value_deserializer=lambda x: json.loads(x.decode('utf-8'))  # Se utiliza json.loads para deserializar el mensaje JSON
-)
 
 master_header = ["nombre", "correo", "premium"]
 venta_header = ["correo", "valor"]
 repo_header = ["correo"]
 
+insc_msgs = []
+vent_msgs = []
+repo_msgs = []
+
+
+def leer_mensajes_no_leidos(topic):
+    consumer = KafkaConsumer(
+        bootstrap_servers=servidores_bootstrap,
+        value_deserializer=lambda x: json.loads(x.decode('utf-8')) 
+        )
+    tp = TopicPartition(topic, 0)
+    consumer.assign([tp])
+
+    for message in consumer:
+        
+        print(message.value)
+        if topic == topic_inscripcion:
+            insc_msgs.append(message.value)
+        if topic == topic_ventas:
+            vent_msgs.append(message.value)
+        if topic == topic_reposicion:
+            repo_msgs.append(message.value)
+    consumer.close()
+
 def aceptar_inscripciones():
-    # consumir del topic pagado
+    msgs = []
+    l = len(insc_msgs)
+    for i in range(l):
+        msgs.append(insc_msgs.pop(0))
     inscripcion_premium = []
     inscripcion = []
+    print(insc_msgs)
 
-    for msg in insc:
+    for msg in msgs:
         # Utilizamos el método get() para evitar KeyError en caso de que la clave no exista en el mensaje
-        nombre = msg.value.get("nombre")
-        correo = msg.value.get("correo")
-        premium = msg.value.get("premium")
+        nombre = msg["nombre"]
+        correo = msg["correo"]
+        premium = msg["premium"]
 
         # Verificamos los datos presentes antes de intentar usarlos
         if nombre is not None and correo is not None and premium is not None:
@@ -47,11 +62,11 @@ def aceptar_inscripciones():
         else:
             print("Mensaje incompleto recibido.")
 
+
     # insertar en base de datos
     for i in range(len(inscripcion_premium)):
         nuevo_registro = {'nombre': inscripcion_premium[i][0], 'correo': inscripcion_premium[i][1], 'premium': True}
         BDD.agregar_registro("masters.csv", master_header, nuevo_registro)
-
 
     # insertar en base de datos
     for i in range(len(inscripcion)):
@@ -61,31 +76,37 @@ def aceptar_inscripciones():
 
 
 def leer_reposiciones():
-    # consumir del topic reposiciones
-    for msg in repo:
-        # Utilizamos el método get() para evitar KeyError en caso de que la clave no exista en el mensaje
-        correo = msg.value.get("correo")
+    msgs = []
+    l = len(repo_msgs)
+    for i in range(l):
+        msgs.append(repo_msgs.pop(0))
 
+    for msg in msgs:
+        # Utilizamos el método get() para evitar KeyError en caso de que la clave no exista en el mensaje
+        correo = msg["correo"]
         # Verificamos los datos presentes antes de intentar usarlos
         if correo is not None :
             #insertar en base de datos
             nueva_repo = {'correo': correo}
             BDD.agregar_registro("repos.csv", repo_header, nueva_repo)
 
-def leer_ventas():
-    # consumir del topic ventas
-    for msg in vent:
-        # Utilizamos el método get() para evitar KeyError en caso de que la clave no exista en el mensaje
-        correo = msg.value.get("correo")
-        valor = msg.value.get("valor")
 
+def leer_ventas():
+    msgs = []
+    l = len(vent_msgs)
+    for i in range(l):
+        msgs.append(dict(vent_msgs.pop(0)))
+    for msg in msgs:
+        # Utilizamos el método get() para evitar KeyError en caso de que la clave no exista en el mensaje
+        correo = msg["correo"]
+        valor = msg["valor"]
         # Verificamos los datos presentes antes de intentar usarlos
         if correo is not None and valor is not None:
             #insertar en base de datos
             nueva_venta = {'correo': correo, 'valor': valor}
             BDD.agregar_registro("ventas.csv", venta_header, nueva_venta)
 
-def recuento_ventas_i(id):
+def recuento_ventas_i(correo):
     cant_ventas = 0
     ganancias = 0
     # sumar las ventas
@@ -93,11 +114,11 @@ def recuento_ventas_i(id):
 
     if ventas:
         for venta in ventas:
-            if venta[1] == id:
+            print(venta)
+            if venta[1] == correo:
                 cant_ventas += 1
                 ganancias += int(venta[2])
         return [cant_ventas, ganancias]
-
 
 def recontar():
     data = []
@@ -114,17 +135,41 @@ def recontar():
         print("No hay maestros registrados")
     pass
 
-def main():
+def run():
     tiempo = 0
     while tiempo < 120:
         print(f"Tiempo: {tiempo}")
-        leer_reposiciones()
+        print("a")
         aceptar_inscripciones()
+        print("b")
+        leer_reposiciones()
+        print("c")
         leer_ventas()
+        print("d")
 
-        if tiempo % 60:
+        if tiempo % 5 == 0:
             recontar()
-        time.sleep(1)
         tiempo += 1
+        time.sleep(1)
     
-main()
+
+
+
+if __name__ == "__main__":
+
+    threads = []
+    front = threading.Thread(target=run)
+    front.start()
+    threads.append(front)
+
+    topics = [topic_inscripcion, topic_reposicion, topic_ventas]
+
+    for topic in topics:
+        t = threading.Thread(target=leer_mensajes_no_leidos, args=(topic,))
+        t.start()
+        threads.append(t)
+
+    # Esperar a que todos los hilos finalicen
+    for t in threads:
+        t.join()
+
