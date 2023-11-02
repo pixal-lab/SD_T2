@@ -3,7 +3,7 @@
 ## Uso 
 ```sh
 git clone https://github.com/pixal-lab/SD_T2
-cd SD-T2
+cd SD_T2
 docker compose up -d
 ```
 
