@@ -25,6 +25,7 @@ def agregar_registro(BD_master, encabezados, nuevo_registro):
             escritor_csv.writeheader()
         print(f'Se ha creado la base de datos: {BD_master}')
         gestor(BD_master)
+        agregar_registro(BD_master, encabezados, nuevo_registro)
     except FileExistsError:
         with open(BD_master, 'a', newline='') as archivo_csv:
             escritor_csv = csv.DictWriter(archivo_csv, fieldnames=enc)

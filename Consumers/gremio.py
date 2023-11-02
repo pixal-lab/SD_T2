@@ -76,13 +76,13 @@ def aceptar_inscripciones():
 
 
 def leer_reposiciones():
+    print(repo_msgs)
     msgs = []
     l = len(repo_msgs)
     for i in range(l):
         msgs.append(repo_msgs.pop(0))
 
     for msg in msgs:
-        # Utilizamos el método get() para evitar KeyError en caso de que la clave no exista en el mensaje
         correo = msg["correo"]
         # Verificamos los datos presentes antes de intentar usarlos
         if correo is not None :
@@ -114,7 +114,6 @@ def recuento_ventas_i(correo):
 
     if ventas:
         for venta in ventas:
-            print(venta)
             if venta[1] == correo:
                 cant_ventas += 1
                 ganancias += int(venta[2])
@@ -125,7 +124,7 @@ def recontar():
     masters = BDD.get_masters()
     if masters:
         for master in masters:
-            data.append(master + [recuento_ventas_i(master[0])])
+            data.append(master + [recuento_ventas_i(master[2])])
 
 
         for d in data:
@@ -147,7 +146,7 @@ def run():
         leer_ventas()
         print("d")
 
-        if tiempo % 5 == 0:
+        if tiempo % 60 == 0:
             recontar()
         tiempo += 1
         time.sleep(1)

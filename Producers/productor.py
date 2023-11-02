@@ -37,7 +37,6 @@ class Productor:
         }
         json_mensaje = dumps(mensaje).encode('utf-8')
         res = self.prod.send(topic, json_mensaje, timestamp_ms=604800000)
-        print(res.get())
 
     def vender(self):
 
@@ -52,7 +51,6 @@ class Productor:
             res = self.prod.send(topic, json_mensaje, timestamp_ms=604800000)
             self.stock -= 1
             print("Venta realizada. Stock restante:", self.stock)
-            print(res.get())
         else:
             print("No hay suficiente stock para vender.")
             self.solicitar_reposicion()
